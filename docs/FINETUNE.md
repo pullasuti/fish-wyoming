@@ -113,6 +113,40 @@ Recipe details are in the `voxcpm2-voice-lora` skill.
   "speech patterns, not timbre". Both mean: pick the checkpoint by eval, and
   prefer the earliest one that sounds like her.
 
+## Expected effect on tags (untested)
+
+The fine-tune removes the reference clip that overrides the tags, but it can
+weaken tags in its own ways:
+
+- **The training data sets the ceiling.** A trained tag learns how
+  CosyVoice performed that emotion. CosyVoice's emotions are milder than
+  S2's, so e.g. `[excited]` may end up less excited than base S2 without a
+  reference.
+- **Tags absent from the data may fade.** A LoRA trained on a handful of
+  emotions pulls the model towards them. Rare tags (`[tsk]`,
+  `[clearing throat]`, `[pause]`) may weaken or vanish, more so with longer
+  training.
+- **Prosody flattening.** Short fine-tunes learn "speech patterns, not
+  timbre" (upstream doc). Mostly calm data teaches "this speaker is calm",
+  which is the reference problem coming back through the weights. Keep the
+  emotion classes balanced against neutral.
+- **RL damage.** Fine-tuning the RL-aligned model can degrade tag-following
+  in general.
+
+What the plan does about it: tag every training line, include laugh and
+sigh lines, leave whisper out, and pick the checkpoint by the tag-strength
+eval below, preferring the earliest one that sounds like her. If tags fade:
+
+- use a smaller LoRA (lower rank, or the fast transformer only), or
+- mix in "replay" data: base S2 renders without a reference of tagged
+  lines, especially the untrained sound tags. This helps keep tag behaviour
+  at some cost to how strongly the voice sticks, so keep the share small
+  and measure both.
+
+Realistic outcome: her voice with working tags, somewhat milder than base
+S2. The trained emotions should hold; the untrained sound tags are the most
+uncertain and need checking by ear for each checkpoint.
+
 ## Evaluate each checkpoint (no reference)
 
 Merge each candidate (see below), then render with `PROMPT_WAV` unset:
