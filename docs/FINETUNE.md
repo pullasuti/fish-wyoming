@@ -88,11 +88,16 @@ Recipe details are in the `voxcpm2-voice-lora` skill.
   | `(surprised, astonished)` | `[surprised]` |
   | `(scared, trembling and anxious)` | `[scared]` |
   | `(warm, gentle and calm)` | `[warm]` |
-  | `(soft, gentle whisper)` | **drop these takes** |
+  | `(soft, gentle whisper)` | `[whisper]`, **only with the new Ming takes** |
 
-  Drop whisper because CosyVoice can't whisper. Training `[whisper]` on its soft
-  voiced takes would overwrite S2's real whisper, which works without a
-  reference.
+  CosyVoice can't whisper: its "whisper" takes are soft voiced speech, and
+  training `[whisper]` on them would overwrite S2's real whisper, which works
+  without a reference. Drop the CosyVoice whisper takes. The user is
+  generating real whispers in the nicoleheart voice with Ming-3.0-tts for a
+  new VoxCPM2 LoRA version; use those for `[whisper]` instead. Screen them
+  first: clearly quieter than neutral (a real whisper was ~8-12 dB down),
+  no voiced pitch, speaker similarity still high. If they aren't ready, leave
+  whisper out rather than use the CosyVoice ones.
 - **Inline sounds (new lines):** CosyVoice3's `[laughter]` and `[sigh]` are
   audible. `[breath]` is untrained in CosyVoice3 and does nothing. Generate
   about 20-30 lines with a laugh or sigh mid-sentence, and label them with S2's
@@ -134,7 +139,7 @@ weaken tags in its own ways:
   in general.
 
 What the plan does about it: tag every training line, include laugh and
-sigh lines, leave whisper out, and pick the checkpoint by the tag-strength
+sigh lines, train whisper only on the Ming takes, and pick the checkpoint by the tag-strength
 eval below, preferring the earliest one that sounds like her. If tags fade:
 
 - use a smaller LoRA (lower rank, or the fast transformer only), or
