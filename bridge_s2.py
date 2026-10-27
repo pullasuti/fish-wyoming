@@ -83,7 +83,8 @@ WARMUP_TEXTS = ("Hello there.", "[excited] The lights in the kitchen are on.")
 
 SOUND_TAGS = {
     "laughing", "chuckle", "chuckling", "giggle", "sigh", "inhale", "exhale",
-    "gasp", "cough", "tsk", "pause", "breath", "sniff", "clears throat",
+    "gasp", "cough", "tsk", "pause", "short pause", "breath", "sniff",
+    "clearing throat", "panting",
 }
 
 # Other spellings (incl. the CosyVoice bridge's tags) -> S2 Pro tag
@@ -105,6 +106,7 @@ ALIASES = {
 TAG_RE = re.compile(r"[\[\{]([^\]\}\[\{]+)[\]\}]")
 PAREN_RE = re.compile(r"\(\s*([a-zA-Z]+(?: [a-zA-Z]+)?)\s*\)")
 DANGLING_RE = re.compile(r"[\[\{][^\]\}]*$")
+TAG_RUN_RE = re.compile(r"(?:\[[^\]\[]+\]\s*)+")
 
 _TERM_RE = re.compile(r"[.!?…][\"'”’)\]]*\s+")
 _WORD_RE = re.compile(r"[A-Za-z.]+$")
@@ -134,15 +136,20 @@ def normalize(text: str) -> str:
 def prepare_block(text: str, mood: Optional[str]) -> tuple[str, Optional[str]]:
     """Return (text for the model, mood in effect after this block).
 
-    A block that does not open with a mood tag gets the current mood
+    The mood is a group of consecutive mood tags, e.g. "[warm] [whisper]";
+    the last such group in a block becomes the mood for the next blocks. A
+    block that does not open with a mood tag gets the current mood
     prepended, so merged blocks keep the reply's delivery.
     """
     text = " ".join(normalize(text).split())
-    moods = [t for t in TAG_RE.findall(text) if t not in SOUND_TAGS]
-    opening = TAG_RE.match(text)
-    if mood and not (opening and opening.group(1) not in SOUND_TAGS):
-        text = f"[{mood}] {text}"
-    return text, (moods[-1] if moods else mood)
+    groups = []
+    for run in TAG_RUN_RE.finditer(text):
+        tags = [t for t in TAG_RE.findall(run.group(0)) if t not in SOUND_TAGS]
+        if tags:
+            groups.append((run.start(), " ".join(f"[{t}]" for t in tags)))
+    if mood and not (groups and groups[0][0] == 0):
+        text = f"{mood} {text}"
+    return text, (groups[-1][1] if groups else mood)
 
 
 def spoken_words(text: str) -> str:
@@ -883,7 +890,9 @@ async def main() -> None:
         raise SystemExit("--prompt-text (the reference transcript) is required "
                          "with --prompt-wav")
 
-    default_mood = canonical_tag(args.default_mood.strip().strip("[]")) or None
+    default_mood = " ".join(
+        f"[{canonical_tag(t)}]" for t in TAG_RE.findall(normalize(args.default_mood))
+    ) or (f"[{canonical_tag(args.default_mood)}]" if args.default_mood.strip() else None)
 
     engine = S2Engine(
         model_dir=args.model_dir,

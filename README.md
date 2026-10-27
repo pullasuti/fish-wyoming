@@ -75,9 +75,10 @@ effect should happen.
 
 - **Sound tags** (`[laughing]`, `[sigh]`, `[chuckle]`, `[inhale]`,
   `[gasp]`, `[cough]`, `[pause]`, ...) apply where they appear.
-- **Any other tag is a mood tag**. It stays in effect for the following
-  sentences of the reply until the next mood tag, because the bridge sends
-  long replies to the model in several blocks.
+- **Any other tag is a mood tag**. A group of them (`[warm] [whisper]`)
+  stays in effect for the following sentences of the reply until the next
+  mood tag, because the bridge sends long replies to the model in several
+  blocks.
 - `(laughs)`, `(sighs)` and `{tag}` are converted, and CosyVoice's
   `[laughter]` becomes `[laughing]`, so the CosyVoice HA prompt keeps working.
 
@@ -98,6 +99,8 @@ reference.
 1. Add the **Wyoming Protocol** integration with this host and port 10215.
 2. Pick the `nicoleheart` voice as the text-to-speech engine in your voice
    assistant.
+3. Paste `ha_prompt.txt` into the conversation agent's instructions so the
+   LLM uses the tags.
 
 ## Running as a service
 
@@ -118,6 +121,7 @@ time, so enable only one of them.
   streaming generation and codec decoding).
 - `run.sh`: setup and launcher.
 - `fish-wyoming.service`: systemd unit.
+- `ha_prompt.txt`: system prompt for the HA conversation agent.
 - `test_bridge.py`: test client for a running bridge. It covers one-shot and
   streaming requests, the duplicate requests HA sends, and blank text
   (`.venv/bin/python test_bridge.py --port 10215`).
