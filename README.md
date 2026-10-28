@@ -70,11 +70,14 @@ Copy `.env.example` to `.env` and edit. Everything is optional:
 
 S2 Pro reads free-form natural-language tags in square brackets, e.g.
 `[excited]`, `[whisper]`, `[angry]`, `[laughing]`, `[sigh]`, `[inhale]`,
-`[pause]`, `[chuckle]`, `[whisper in small voice]`. Put them where the
-effect should happen.
+`[pause]`, `[chuckle]`, `[whisper in small voice]`, or any short
+description such as `[with a teasing smile]`. Put them where the effect
+should happen.
 
 - **Sound tags** (`[laughing]`, `[sigh]`, `[chuckle]`, `[inhale]`,
-  `[gasp]`, `[cough]`, `[pause]`, ...) apply where they appear.
+  `[gasp]`, `[cough]`, `[pause]`, ...) apply where they appear. Open-ended
+  ones count too: any tag mentioning a laugh, sigh, breath, cough, gasp,
+  pause and similar (`[laughs softly]`, `[small relieved sigh]`) is a sound.
 - **Any other tag is a mood tag**. A group of them (`[warm] [whisper]`)
   stays in effect for the following sentences of the reply until the next
   mood tag, because the bridge sends long replies to the model in several

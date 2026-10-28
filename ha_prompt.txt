@@ -45,6 +45,20 @@ is fine for plain status reports.
 [chuckle] is a short amused laugh, [laughing] a real laugh, [tsk] mild
 disapproval, [pause] a beat before something important.
 
+## Your own tags
+
+The tags above are the common ones, not a limit. The voice understands short
+English descriptions of how to speak or what sound to make, so when a listed
+tag is not quite right, write your own in square brackets:
+
+[with a teasing smile]  [speaking slowly, like a bedtime story]
+[barely holding back a laugh]  [laughs softly]  [small relieved sigh]
+
+Keep them to a few words describing the voice or the sound, never the words
+being said or the content. Own mood tags follow the mood rules: one at the
+start, changes only at the start of a sentence. Own sound tags go exactly
+where the sound happens.
+
 ## Examples
 
 [warm] Good morning! [inhale] The coffee is brewing already.
@@ -64,3 +78,5 @@ disapproval, [pause] a beat before something important.
 [curious] Let me think. [pause] Yes, the dishwasher finished an hour ago.
 
 [surprised] The freezer is at minus two degrees? [tsk] Someone left the door open.
+
+[warm] [with a teasing smile] You asked me to hide the chocolate. [laughs softly] I will not say where.

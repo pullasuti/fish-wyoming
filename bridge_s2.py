@@ -87,6 +87,19 @@ SOUND_TAGS = {
     "clearing throat", "panting",
 }
 
+# S2 Pro also takes open-ended tags ("[laughs softly]", "[small nervous
+# laugh]"). Any tag containing one of these words is a sound, so it never
+# becomes the mood carried into later blocks.
+SOUND_WORDS_RE = re.compile(
+    r"\b(laugh|chuckl|giggl|snicker|sigh|inhal|exhal|gasp|cough|breath|sniff|"
+    r"throat|pause|tsk|pant|yawn|snort|hmm|gulp|whistl)", re.I
+)
+
+
+def is_sound(tag: str) -> bool:
+    return tag in SOUND_TAGS or bool(SOUND_WORDS_RE.search(tag))
+
+
 # Other spellings (incl. the CosyVoice bridge's tags) -> S2 Pro tag
 ALIASES = {
     "laughter": "laughing",
@@ -126,7 +139,7 @@ def normalize(text: str) -> str:
     """{tag} -> [tag]; (laughs) -> [laughing]; other parentheses stay text."""
     def paren(m: re.Match) -> str:
         key = canonical_tag(m.group(1))
-        return f"[{key}]" if key in SOUND_TAGS else m.group(0)
+        return f"[{key}]" if is_sound(key) else m.group(0)
 
     text = PAREN_RE.sub(paren, text)
     text = TAG_RE.sub(lambda m: f"[{canonical_tag(m.group(1))}]", text)
@@ -144,7 +157,7 @@ def prepare_block(text: str, mood: Optional[str]) -> tuple[str, Optional[str]]:
     text = " ".join(normalize(text).split())
     groups = []
     for run in TAG_RUN_RE.finditer(text):
-        tags = [t for t in TAG_RE.findall(run.group(0)) if t not in SOUND_TAGS]
+        tags = [t for t in TAG_RE.findall(run.group(0)) if not is_sound(t)]
         if tags:
             groups.append((run.start(), " ".join(f"[{t}]" for t in tags)))
     if mood and not (groups and groups[0][0] == 0):
